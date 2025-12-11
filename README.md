@@ -13,11 +13,26 @@ Displays real-time session information in your Claude Code status bar:
 - **Cost** - Session cost (and daily total if configured)
 - **Duration** - Total session time and API time
 - **Lines changed** - Lines added/removed in the session
+- **Context meter** - Visual progress bar showing context window usage
 
 Example output:
 ```
-Opus │ myproject@main │ $0.1234/$4.56 │ 5m23s (2m10s api) │ +156/-23
+Opus │ myproject@main │ $0.1234/$4.56 │ 5m23s (2m10s api) │ +156/-23 │ 🟡████▁▁▁▁ 52%
 ```
+
+### Context Meter
+
+The context meter shows how much of Claude's context window is being used:
+
+| Icon | Color | Usage |
+|------|-------|-------|
+| 🟢 | Green | 0-49% |
+| 🟡 | Yellow | 50-74% |
+| 🟠 | Orange | 75-89% |
+| 🔴 | Red | 90-94% |
+| 🚨 | Blinking Red | 95%+ (critical) |
+
+The meter parses token usage from the transcript file provided by Claude Code.
 
 ## Why claude-statusline?
 
