@@ -53,10 +53,23 @@ fi
 
 SHORT_CWD="${CWD##*/}"
 
-# Git branch (single call with combined check)
+# Git branch (cached - refreshes every 5 seconds)
 GIT_BRANCH=""
-if BRANCH=$(git -C "$CWD" symbolic-ref --short HEAD 2>/dev/null); then
-  GIT_BRANCH="${DIM}@${RESET}${MAGENTA}${BRANCH}${RESET}"
+GIT_CACHE=~/.cache/statusline_git
+NOW=${EPOCHSECONDS:-$(printf '%(%s)T' -1)}
+if [[ -f "$GIT_CACHE" ]]; then
+  IFS='|' read -r CACHE_TIME CACHE_DIR CACHE_BRANCH < "$GIT_CACHE"
+  if [[ "$CACHE_DIR" == "$CWD" && $((NOW - CACHE_TIME)) -lt 5 ]]; then
+    [[ -n "$CACHE_BRANCH" ]] && GIT_BRANCH="${DIM}@${RESET}${MAGENTA}${CACHE_BRANCH}${RESET}"
+  else
+    BRANCH=$(git -C "$CWD" symbolic-ref --short HEAD 2>/dev/null)
+    echo "$NOW|$CWD|$BRANCH" > "$GIT_CACHE"
+    [[ -n "$BRANCH" ]] && GIT_BRANCH="${DIM}@${RESET}${MAGENTA}${BRANCH}${RESET}"
+  fi
+else
+  BRANCH=$(git -C "$CWD" symbolic-ref --short HEAD 2>/dev/null)
+  echo "$NOW|$CWD|$BRANCH" > "$GIT_CACHE"
+  [[ -n "$BRANCH" ]] && GIT_BRANCH="${DIM}@${RESET}${MAGENTA}${BRANCH}${RESET}"
 fi
 
 # Daily total cache
